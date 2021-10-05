@@ -16,12 +16,11 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"os"
+	// "fmt"
+	// "os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/spf13/viper"
+	// "github.com/spf13/viper"
 )
 
 // Token is the Plex token to be shared with sub commands
@@ -49,7 +48,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	// cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -58,6 +57,7 @@ func init() {
 	// rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is $HOME/.plextool.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "192.168.9.10:32400", "Plex Server (IP:Port)")
 	rootCmd.PersistentFlags().StringVarP(&token, "token", "t", "", "Plex token")
+	rootCmd.MarkPersistentFlagRequired("token")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -65,25 +65,25 @@ func init() {
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
+// func initConfig() {
+// 	if cfgFile != "" {
+// 		// Use config file from the flag.
+// 		viper.SetConfigFile(cfgFile)
+// 	} else {
+// 		// Find home directory.
+// 		home, err := os.UserHomeDir()
+// 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".plextool" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".plextool")
-	}
+// 		// Search config in home directory with name ".plextool" (without extension).
+// 		viper.AddConfigPath(home)
+// 		viper.SetConfigType("yaml")
+// 		viper.SetConfigName(".plextool")
+// 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+// 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
-}
+// 	// If a config file is found, read it in.
+// 	if err := viper.ReadInConfig(); err == nil {
+// 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+// 	}
+// }
