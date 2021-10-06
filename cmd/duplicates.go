@@ -66,7 +66,7 @@ type Library struct {
 	} `xml:"Directory"`
 }
 
-type Media struct {
+type Movie struct {
 	XMLName             xml.Name `xml:"MediaContainer"`
 	Text                string   `xml:",chardata"`
 	Size                string   `xml:"size,attr"`
@@ -166,6 +166,95 @@ type Media struct {
 	} `xml:"Video"`
 }
 
+type Show struct {
+	XMLName         xml.Name `xml:"MediaContainer"`
+	Text            string   `xml:",chardata"`
+	Size            string   `xml:"size,attr"`
+	AllowSync       string   `xml:"allowSync,attr"`
+	Art             string   `xml:"art,attr"`
+	Identifier      string   `xml:"identifier,attr"`
+	MediaTagPrefix  string   `xml:"mediaTagPrefix,attr"`
+	MediaTagVersion string   `xml:"mediaTagVersion,attr"`
+	MixedParents    string   `xml:"mixedParents,attr"`
+	Nocache         string   `xml:"nocache,attr"`
+	Thumb           string   `xml:"thumb,attr"`
+	Title1          string   `xml:"title1,attr"`
+	Title2          string   `xml:"title2,attr"`
+	ViewGroup       string   `xml:"viewGroup,attr"`
+	ViewMode        string   `xml:"viewMode,attr"`
+	Video           []struct {
+		Text                  string `xml:",chardata"`
+		RatingKey             string `xml:"ratingKey,attr"`
+		Key                   string `xml:"key,attr"`
+		ParentRatingKey       string `xml:"parentRatingKey,attr"`
+		GrandparentRatingKey  string `xml:"grandparentRatingKey,attr"`
+		Guid                  string `xml:"guid,attr"`
+		ParentGuid            string `xml:"parentGuid,attr"`
+		GrandparentGuid       string `xml:"grandparentGuid,attr"`
+		Type                  string `xml:"type,attr"`
+		Title                 string `xml:"title,attr"`
+		GrandparentKey        string `xml:"grandparentKey,attr"`
+		ParentKey             string `xml:"parentKey,attr"`
+		GrandparentTitle      string `xml:"grandparentTitle,attr"`
+		ParentTitle           string `xml:"parentTitle,attr"`
+		ContentRating         string `xml:"contentRating,attr"`
+		Summary               string `xml:"summary,attr"`
+		Index                 string `xml:"index,attr"`
+		ParentIndex           string `xml:"parentIndex,attr"`
+		AudienceRating        string `xml:"audienceRating,attr"`
+		Thumb                 string `xml:"thumb,attr"`
+		Art                   string `xml:"art,attr"`
+		GrandparentThumb      string `xml:"grandparentThumb,attr"`
+		GrandparentArt        string `xml:"grandparentArt,attr"`
+		Duration              string `xml:"duration,attr"`
+		OriginallyAvailableAt string `xml:"originallyAvailableAt,attr"`
+		AddedAt               string `xml:"addedAt,attr"`
+		AudienceRatingImage   string `xml:"audienceRatingImage,attr"`
+		UpdatedAt             string `xml:"updatedAt,attr"`
+		Year                  string `xml:"year,attr"`
+		ParentThumb           string `xml:"parentThumb,attr"`
+		ChapterSource         string `xml:"chapterSource,attr"`
+		Media                 []struct {
+			Text            string `xml:",chardata"`
+			ID              string `xml:"id,attr"`
+			Duration        string `xml:"duration,attr"`
+			Bitrate         string `xml:"bitrate,attr"`
+			Width           string `xml:"width,attr"`
+			Height          string `xml:"height,attr"`
+			AspectRatio     string `xml:"aspectRatio,attr"`
+			AudioChannels   string `xml:"audioChannels,attr"`
+			AudioCodec      string `xml:"audioCodec,attr"`
+			VideoCodec      string `xml:"videoCodec,attr"`
+			VideoResolution string `xml:"videoResolution,attr"`
+			Container       string `xml:"container,attr"`
+			VideoFrameRate  string `xml:"videoFrameRate,attr"`
+			VideoProfile    string `xml:"videoProfile,attr"`
+			Part            struct {
+				Text         string `xml:",chardata"`
+				ID           string `xml:"id,attr"`
+				Key          string `xml:"key,attr"`
+				Duration     string `xml:"duration,attr"`
+				File         string `xml:"file,attr"`
+				Size         string `xml:"size,attr"`
+				Container    string `xml:"container,attr"`
+				VideoProfile string `xml:"videoProfile,attr"`
+			} `xml:"Part"`
+		} `xml:"Media"`
+		Director struct {
+			Text string `xml:",chardata"`
+			Tag  string `xml:"tag,attr"`
+		} `xml:"Director"`
+		Writer struct {
+			Text string `xml:",chardata"`
+			Tag  string `xml:"tag,attr"`
+		} `xml:"Writer"`
+		Role []struct {
+			Text string `xml:",chardata"`
+			Tag  string `xml:"tag,attr"`
+		} `xml:"Role"`
+	} `xml:"Video"`
+}
+
 // var plex_server = &server
 // var plex_token = &token
 
@@ -228,17 +317,16 @@ var duplicatesCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 
-				var media Media
-				xml.Unmarshal(responseData, &media)
+				var movie Movie
+				xml.Unmarshal(responseData, &movie)
 
-				process_media(media)
+				process_movie(movie)
 
 			}
 
 			if library.Type == "show" {
-				//fmt.Println("This is a show")
+
 				var url_show = "http://" + server + "/library/sections/" + library.Key + "/search?type=4&duplicate=1&X-Plex-Token=" + token
-				// fmt.Println(url_show)
 
 				response, err := http.Get(url_show)
 
@@ -253,10 +341,10 @@ var duplicatesCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 
-				var media Media
-				xml.Unmarshal(responseData, &media)
+				var show Show
+				xml.Unmarshal(responseData, &show)
 
-				process_media(media)
+				process_show(show)
 
 			}
 
@@ -279,11 +367,10 @@ func init() {
 	// duplicatesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func process_media(media Media) {
+func process_movie(movie Movie) {
 
-	for _, video := range media.Video {
+	for _, video := range movie.Video {
 		fmt.Println(video.Title, video.Key)
-		// fmt.Println("    ", video.Media)
 
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
@@ -294,15 +381,39 @@ func process_media(media Media) {
 			{Name: "Size", Mode: table.Asc},
 		})
 
-		// width := 0
 		for _, media := range video.Media {
 
 			t.AppendRows([]table.Row{
 				{media.ID, media.Part.Size, media.Width, media.VideoCodec},
 			})
 
-			// fmt.Println("     ID:", media.ID, "Size:", media.Part.Size, ", Width:", media.Width, ", Codec:", media.VideoCodec)
-			// fmt.Println(score)
+		}
+		t.SetStyle(table.StyleLight)
+		t.Render()
+
+	}
+
+}
+
+func process_show(show Show) {
+
+	for _, video := range show.Video {
+		fmt.Println(video.Title, video.Key)
+
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"ID", "Show", "Episode", "Size", "Width", "Codec"})
+		t.SortBy([]table.SortBy{
+			{Name: "Codec", Mode: table.Dsc},
+			{Name: "Width", Mode: table.Asc},
+			{Name: "Size", Mode: table.Asc},
+		})
+
+		for _, media := range video.Media {
+
+			t.AppendRows([]table.Row{
+				{media.ID, video.GrandparentTitle, video.Title, media.Part.Size, media.Width, media.VideoCodec},
+			})
 
 		}
 		t.SetStyle(table.StyleLight)
