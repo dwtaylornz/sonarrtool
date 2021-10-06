@@ -231,42 +231,7 @@ var duplicatesCmd = &cobra.Command{
 				var media Media
 				xml.Unmarshal(responseData, &media)
 
-				//sort stuff!
-
-				// // Sort by age, keeping original order or equal elements.
-				// sort.SliceStable(media.Video, func(i, j int) bool {
-				// 	return media[i].video < media[j].video
-				// })
-				// fmt.Println(media) // [{David 2} {Eve 2} {Alice 23} {Bob 25}]
-
-				for _, video := range media.Video {
-					fmt.Println(video.Title, video.Key)
-					// fmt.Println("    ", video.Media)
-
-					t := table.NewWriter()
-					t.SetOutputMirror(os.Stdout)
-					t.AppendHeader(table.Row{"ID", "Size", "Width", "Codec"})
-					t.SortBy([]table.SortBy{
-						{Name: "Codec", Mode: table.Dsc},
-						{Name: "Width", Mode: table.Asc},
-						{Name: "Size", Mode: table.Asc},
-					})
-
-					// width := 0
-					for _, media := range video.Media {
-
-						t.AppendRows([]table.Row{
-							{media.ID, media.Part.Size, media.Width, media.VideoCodec},
-						})
-
-						// fmt.Println("     ID:", media.ID, "Size:", media.Part.Size, ", Width:", media.Width, ", Codec:", media.VideoCodec)
-						// fmt.Println(score)
-
-					}
-					t.SetStyle(table.StyleLight)
-					t.Render()
-
-				}
+				process_media(media)
 
 			}
 
@@ -291,41 +256,11 @@ var duplicatesCmd = &cobra.Command{
 				var media Media
 				xml.Unmarshal(responseData, &media)
 
-				for _, video := range media.Video {
-					fmt.Println(video.Title, video.Key)
-					// fmt.Println("    ", video.Media)
-
-					t := table.NewWriter()
-					t.SetOutputMirror(os.Stdout)
-					t.AppendHeader(table.Row{"ID", "Size", "Width", "Codec"})
-					t.SortBy([]table.SortBy{
-						{Name: "Codec", Mode: table.Dsc},
-						{Name: "Width", Mode: table.Asc},
-						{Name: "Size", Mode: table.Asc},
-					})
-
-					// width := 0
-					for _, media := range video.Media {
-
-						t.AppendRows([]table.Row{
-							{media.ID, media.Part.Size, media.Width, media.VideoCodec},
-						})
-
-						// fmt.Println("     ID:", media.ID, "Size:", media.Part.Size, ", Width:", media.Width, ", Codec:", media.VideoCodec)
-						// fmt.Println(score)
-
-					}
-					t.SetStyle(table.StyleLight)
-					t.Render()
-
-					// process_video(video)
-				}
+				process_media(media)
 
 			}
 
 		}
-
-		// print_table()
 
 	},
 }
@@ -342,4 +277,37 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// duplicatesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func process_media(media Media) {
+
+	for _, video := range media.Video {
+		fmt.Println(video.Title, video.Key)
+		// fmt.Println("    ", video.Media)
+
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"ID", "Size", "Width", "Codec"})
+		t.SortBy([]table.SortBy{
+			{Name: "Codec", Mode: table.Dsc},
+			{Name: "Width", Mode: table.Asc},
+			{Name: "Size", Mode: table.Asc},
+		})
+
+		// width := 0
+		for _, media := range video.Media {
+
+			t.AppendRows([]table.Row{
+				{media.ID, media.Part.Size, media.Width, media.VideoCodec},
+			})
+
+			// fmt.Println("     ID:", media.ID, "Size:", media.Part.Size, ", Width:", media.Width, ", Codec:", media.VideoCodec)
+			// fmt.Println(score)
+
+		}
+		t.SetStyle(table.StyleLight)
+		t.Render()
+
+	}
+
 }
