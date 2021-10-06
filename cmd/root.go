@@ -24,7 +24,7 @@ import (
 )
 
 // Token is the Plex token to be shared with sub commands
-var cfgFile, server, token string
+var server, token string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
