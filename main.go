@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/dwtaylornz/plextool/cmd"
+import "github.com/dwtaylornz/sonarrtool/cmd"
 
 func main() {
 	cmd.Execute()
