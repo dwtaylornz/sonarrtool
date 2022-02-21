@@ -3,7 +3,9 @@ module github.com/dwtaylornz/plextool
 go 1.16
 
 require (
+	github.com/bketelsen/crypt v0.0.4 // indirect
 	github.com/jedib0t/go-pretty/v6 v6.2.4
-	github.com/spf13/cobra v1.2.1
-	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
+	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/spf13/cobra v1.3.0
 )
